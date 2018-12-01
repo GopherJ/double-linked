@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "double_linked.h"
 
 void InsertAtHead(NodePtr *head_ptr, void *data) {
@@ -50,64 +53,43 @@ void InsertAtTail(NodePtr *head_ptr, void *data) {
 void DisplayForward(NodePtr *head_ptr) {
     if (*head_ptr == NULL) return;
     NodePtr cur_node = *head_ptr;
-    printf("%s", (char*)(cur_node -> data));
+    printf("%d", *(int*)(cur_node -> data));
 
     while (cur_node -> next != NULL) {
-        printf("%s", (char*)(cur_node -> data));
         cur_node = cur_node -> next;
+        printf("%d", *(int*)(cur_node -> data));
     }
 }
 
-NodePtr Search(NodePtr *head_ptr, void *data) {
+NodePtr FindNode(NodePtr *head_ptr, void *data) {
     NodePtr cur_node = *head_ptr;
 
-    while (cur_node -> next != NULL) {
-        if (cur_node -> data != data) break;
+    while (cur_node != NULL && cur_node -> data != data) {
         cur_node = cur_node -> next;
     }
 
     return cur_node;
 }
 
-void Delete(NodePtr *head_ptr, void *data) {
-    // Empty list
-    if (*head_ptr == NULL) return;
-
+void DeleteNodeByData(NodePtr *head_ptr, void *data) {
     // Find the node with this data
-    NodePtr cur_node = *head_ptr;
-    while (cur_node != NULL && cur_node -> data != data) {
-        cur_node = cur_node -> next;
-    }
+    NodePtr node = FindNode(head_ptr, data);
 
     // Can't find the data
-    if (cur_node == NULL) return;
+    if (node == NULL) return;
 
     // The target node is the head
-    if (cur_node -> prev == NULL) {
-        // List has just one element
-        if (cur_node -> next == NULL) {
-            *head_ptr = NULL;
-            free(cur_node);
-
-            return;
-        }
-
-        cur_node -> next -> prev = NULL;
-        cur_node -> next = NULL;
-
-        *head_ptr = cur_node -> next;
+    if (*head_ptr == node) {
+        *head_ptr = node -> next;
     }
 
-    if (cur_node -> next == NULL) {
-        cur_node -> prev -> next = NULL;
-
-        free(cur_node);
-
-        return;
+    if (node -> next != NULL) {
+        node -> next -> prev = node -> prev;
     }
 
-    cur_node -> prev -> next = cur_node -> next;
-    cur_node -> next -> prev = cur_node -> prev;
+    if (node -> prev != NULL) {
+        node -> prev -> next = node -> next;
+    }
 
-    free(cur_node);
+    free(node);
 }
